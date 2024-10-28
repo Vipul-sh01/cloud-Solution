@@ -2,6 +2,7 @@ import express from "express";
 import { ApiError } from "./utils/ApiError.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { sessionMiddleware } from "./db/server.db.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json({ limit: '18kb' }));
 app.use(express.urlencoded({ limit: '18kb', extended: true }));
 app.use(cookieParser());
 app.use(express.static('public'));
+app.use(sessionMiddleware);
 
 
 

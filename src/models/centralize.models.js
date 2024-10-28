@@ -1,9 +1,9 @@
-import { UserModel } from '../models/User.model.js';
-import { FolderModel } from '../models/Folder.model.js';
-import { FileModel } from '../models/File.model.js';
-import { PermissionModel } from '../models/Permission.model.js';
-import { ActivityLogModel } from '../models/ActivityLog.model.js';
-import { VersionModel } from '../models/Version.model.js';
+import { UserModel } from './User.model.js';
+import { FolderModel } from './Folder.model.js';
+import { FileModel } from './File.model.js';
+import { PermissionModel } from './Permission.model.js';
+import { ActivityLogModel } from './ActivityLog.model.js';
+import { VersionModel } from './Version.model.js';
 
 export const initModels = (sequelize) => {
     const db = {};
