@@ -5,9 +5,8 @@ import crypto from 'crypto';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { db } from '../db/server.db.js';
-import UserModel from '../models/User.js';
 
-const User = UserModel(db, db.Sequelize.DataTypes);
+const { User } = db;
 
 const client = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 

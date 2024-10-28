@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt';
+
 const UserModel = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         userid: {
@@ -10,14 +12,18 @@ const UserModel = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true,
         },
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         phone: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
         },
-        password: {
+        phoneVerificationCode: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         isEmailVerified: {
             type: DataTypes.BOOLEAN,
@@ -28,10 +34,6 @@ const UserModel = (sequelize, DataTypes) => {
             defaultValue: false,
         },
         emailVerificationToken: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        phoneVerificationCode: {
             type: DataTypes.STRING,
             allowNull: true,
         },
@@ -51,7 +53,18 @@ const UserModel = (sequelize, DataTypes) => {
     }, {
         timestamps: true,
         tableName: 'User',
+        hooks: {
+            beforeCreate: async (user) => {
+                user.password = user.password ? await bcrypt.hash(user.password, 10) : user.password;
+                user.phoneVerificationCode = user.phoneVerificationCode ? await bcrypt.hash(user.phoneVerificationCode, 10) : user.phoneVerificationCode;
+            },
+        },
     });
+
+    User.prototype.compareHash = async function (input, type) {
+        const hashToCompare = type === 'password' ? this.password : this.phoneVerificationCode;
+        return await bcrypt.compare(input, hashToCompare);
+    };
 
     return User;
 };
