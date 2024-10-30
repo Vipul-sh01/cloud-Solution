@@ -1,7 +1,7 @@
 import { UserModel } from './User.model.js';
 import { FolderModel } from './Folder.model.js';
 import { FileModel } from './File.model.js';
-import { PermissionModel } from './Permission.model.js';
+import { PermissionModel } from './Permission.folder.model.js';
 import { ActivityLogModel } from './ActivityLog.model.js';
 import { VersionModel } from './Version.model.js';
 

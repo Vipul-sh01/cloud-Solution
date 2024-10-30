@@ -20,7 +20,7 @@ app.use(sessionMiddleware);
 
 
 import UserOtpRoutes from './routers/User.auth.routes.js';
-app.use("/api/v1/UserOtp", UserOtpRoutes);
+app.use("/api/v1/User", UserOtpRoutes);
 
 
 
