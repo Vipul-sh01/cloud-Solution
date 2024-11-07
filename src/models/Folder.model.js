@@ -1,8 +1,10 @@
+import { v4 as uuidv4 } from 'uuid';
+
 const FolderModel = (sequelize, DataTypes) => {
-    return sequelize.define('Folder', {
-        folderid: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
+    const Folder = sequelize.define('Folder', {
+       folderid: {
+            type: DataTypes.UUID,
+            defaultValue: uuidv4,
             primaryKey: true,
         },
         name: {
@@ -10,25 +12,47 @@ const FolderModel = (sequelize, DataTypes) => {
             allowNull: false,
         },
         ownerid: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
             allowNull: false,
             references: {
-                model: 'User',
-                key: 'userid',
+                model: 'User', 
+                key: 'userid',     
             },
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
         },
         parentfolderid: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
+            allowNull: true,
             references: {
-                model: 'Folder',
+                model: 'folder', 
                 key: 'folderid',
             },
-            defaultValue: null,
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE',
+        },
+        isshared: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+        },
+        sharedwith: {
+            type: DataTypes.ARRAY(DataTypes.UUID),
+            allowNull: true,
+        },
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        visibility: {
+            type: DataTypes.ENUM('private', 'shared', 'public'),  
+            defaultValue: 'private',
         },
     }, {
         timestamps: true,
-        tableName: 'Folder',
+        tableName: 'folder', 
     });
+    
+    return Folder;
 };
 
-export {FolderModel};
+export { FolderModel };

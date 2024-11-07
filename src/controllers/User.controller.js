@@ -10,7 +10,6 @@ const { User } = db;
 
 const client = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -19,27 +18,27 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-
 const otpSend = asyncHandler(async (req, res) => {
-    const { phone } = req.body;
-    const otp = Math.floor(100000 + Math.random() * 900000); 
-    const otpExpires = Date.now() + 10 * 60 * 1000;
+    const { phoneNumber } = req.body;
+    const otpCode = Math.floor(100000 + Math.random() * 900000); 
+    const otpExpiration = new Date(Date.now() + 10 * 60 * 1000);
 
-    const existingUser = await User.findOne({ where: { phone } });
+    const existingUser = await User.findOne({ where: { phoneNumber } });
     if (existingUser) {
         throw new ApiError(400, "User already exists");
     }
 
     const user = await User.create({
-        phone,
-        phoneVerificationCode: otp,
+        phoneNumber,
+        otpCode,
+        otpExpiration,
     });
 
     try {
         await client.messages.create({
-            body: `Your verification code is ${otp}`,
+            body: `Your verification code is ${otpCode}`,
             from: process.env.TWILIO_PHONE_NUMBER,
-            to: phone,
+            to: phoneNumber,
         });
     } catch (error) {
         throw new ApiError(500, "Failed to send OTP");
@@ -48,35 +47,29 @@ const otpSend = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, null, "OTP sent successfully"));
 });
 
-
 const otpVerify = asyncHandler(async (req, res) => {
-    const { otp } = req.body;
-
-    const expiredOTP = await User.findOne({ otpExpires: { $gt: Date.now() } });
-
-    if(!expiredOTP){
-        throw new ApiError(400, "OTP Expired");
-    }
+    const { otpCode, phoneNumber } = req.body;
 
     const user = await User.findOne({
         where: {
-            phoneVerificationCode: otp,
+            phoneNumber,
+            otpCode,
+            otpExpiration: { [Op.gt]: new Date() },
         }
     });
+
     if (!user) {
-        throw new ApiError(400, "Invalid OTP.");
+        throw new ApiError(400, "Invalid or expired OTP.");
     }
 
     await user.update({
         isPhoneVerified: true,
-        phoneVerificationCode: null,
+        otpCode: null,
+        otpExpiration: null,
     });
-
-    req.session.userId = user.userid;
 
     return res.status(200).json(new ApiResponse(200, { user }, "OTP verified successfully"));
 });
-
 
 const sendEmailVerification = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -123,7 +116,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
 });
 
 
-const customerLogOut = asyncHandler(async (req, res) => {
+const UserLogOut = asyncHandler(async (req, res) => {
     if (req.session) {
         req.session.destroy((err) => {
             if (err) {
@@ -140,11 +133,10 @@ const customerLogOut = asyncHandler(async (req, res) => {
     }
 });
 
-
 export { 
     otpSend,
     otpVerify,
     sendEmailVerification,
     verifyEmail,
-    customerLogOut,
+    UserLogOut,
 };
