@@ -1,14 +1,15 @@
+import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 
 const UserModel = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         userid: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
+            type: DataTypes.UUID,
+            defaultValue: uuidv4,
             primaryKey: true,
         },
         email: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: false,
             unique: true,
         },
@@ -16,14 +17,22 @@ const UserModel = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        phone: {
-            type: DataTypes.STRING,
-            allowNull: false,
+        phoneNumber: {
+            type: DataTypes.STRING(15),
+            allowNull: true,
             unique: true,
         },
-        phoneVerificationCode: {
-            type: DataTypes.STRING,
+        otpCode: {
+            type: DataTypes.CHAR(6),
             allowNull: true,
+        },
+        otpExpiration: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
+        otpVerified: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
         },
         isEmailVerified: {
             type: DataTypes.BOOLEAN,
@@ -34,15 +43,15 @@ const UserModel = (sequelize, DataTypes) => {
             defaultValue: false,
         },
         emailVerificationToken: {
-            type: DataTypes.STRING,
+            type: DataTypes.CHAR(36),
             allowNull: true,
         },
         googleId: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(50),
             allowNull: true,
         },
         facebookId: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(50),
             allowNull: true,
         },
         role: {
@@ -50,19 +59,29 @@ const UserModel = (sequelize, DataTypes) => {
             allowNull: false,
             defaultValue: 'user',
         },
+        lastLogin: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
+        },
     }, {
         timestamps: true,
         tableName: 'User',
         hooks: {
             beforeCreate: async (user) => {
                 user.password = user.password ? await bcrypt.hash(user.password, 10) : user.password;
-                user.phoneVerificationCode = user.phoneVerificationCode ? await bcrypt.hash(user.phoneVerificationCode, 10) : user.phoneVerificationCode;
+                user.otpCode = user.otpCode ? await bcrypt.hash(user.otpCode, 10) : user.otpCode;
+            },
+            beforeUpdate: async (user) => {
+                user.password = user.changed('password') ? await bcrypt.hash(user.password, 10) : user.password;
+                user.otpCode = user.changed('otpCode') ? await bcrypt.hash(user.otpCode, 10) : user.otpCode;
             },
         },
+        
     });
 
     User.prototype.compareHash = async function (input, type) {
-        const hashToCompare = type === 'password' ? this.password : this.phoneVerificationCode;
+        const hashToCompare = type === 'password' ? this.password : this.otpCode;
         return await bcrypt.compare(input, hashToCompare);
     };
 
