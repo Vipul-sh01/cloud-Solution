@@ -4,7 +4,7 @@ import { FileModel } from './File.model.js';
 import { PermissionModel } from './Permission.model.js';
 import { ActivityLogModel } from './ActivityLog.model.js';
 import { VersionModel } from './Version.model.js';
-import { MetadataModel } from './MeteData.model.js';
+import { MetadataModel } from './MetaData.model.js';
 
 export const initModels = (sequelize) => {
     const db = {};

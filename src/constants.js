@@ -1,1 +1,1 @@
-export const DB_NAME="Cloud-solution";
+export const DB_NAME="Cloud-solution-code";
