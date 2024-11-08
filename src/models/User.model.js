@@ -10,20 +10,20 @@ const UserModel = (sequelize, DataTypes) => {
         },
         email: {
             type: DataTypes.STRING(255),
-            allowNull: false,
+            allowNull: true,
             unique: true,
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         phoneNumber: {
-            type: DataTypes.STRING(15),
+            type: DataTypes.STRING(10),
             allowNull: true,
             unique: true,
         },
         otpCode: {
-            type: DataTypes.CHAR(6),
+            type: DataTypes.STRING(6),
             allowNull: true,
         },
         otpExpiration: {
@@ -32,18 +32,21 @@ const UserModel = (sequelize, DataTypes) => {
         },
         otpVerified: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false,
+            allowNull: true,
+            defaultValue: true,
         },
         isEmailVerified: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false,
+            allowNull: true,
+            defaultValue: true,
         },
         isPhoneVerified: {
             type: DataTypes.BOOLEAN,
-            defaultValue: false,
+            allowNull: true,
+            defaultValue: true,
         },
         emailVerificationToken: {
-            type: DataTypes.CHAR(36),
+            type: DataTypes.STRING(6),
             allowNull: true,
         },
         googleId: {
@@ -56,7 +59,7 @@ const UserModel = (sequelize, DataTypes) => {
         },
         role: {
             type: DataTypes.ENUM('admin', 'user'),
-            allowNull: false,
+            allowNull: true,
             defaultValue: 'user',
         },
         lastLogin: {
@@ -69,22 +72,37 @@ const UserModel = (sequelize, DataTypes) => {
         tableName: 'User',
         hooks: {
             beforeCreate: async (user) => {
-                user.password = user.password ? await bcrypt.hash(user.password, 10) : user.password;
-                user.otpCode = user.otpCode ? await bcrypt.hash(user.otpCode, 10) : user.otpCode;
+                user.password = (user.password && typeof user.password === 'string' && user.password.trim()) 
+                    ? await bcrypt.hash(user.password, 10) 
+                    : user.password;
+
+                user.otpCode = (user.otpCode && typeof user.otpCode === 'string' && user.otpCode.trim()) 
+                    ? await bcrypt.hash(user.otpCode, 10) 
+                    : user.otpCode;
             },
             beforeUpdate: async (user) => {
-                user.password = user.changed('password') ? await bcrypt.hash(user.password, 10) : user.password;
-                user.otpCode = user.changed('otpCode') ? await bcrypt.hash(user.otpCode, 10) : user.otpCode;
+                user.password = (user.changed('password') && typeof user.password === 'string' && user.password.trim()) 
+                    ? await bcrypt.hash(user.password, 10) 
+                    : user.password;
+
+                user.otpCode = (user.changed('otpCode') && typeof user.otpCode === 'string' && user.otpCode.trim()) 
+                    ? await bcrypt.hash(user.otpCode, 10) 
+                    : user.otpCode;
             },
         },
         
     });
-
+    
     User.prototype.compareHash = async function (input, type) {
+        if (type !== 'password' && type !== 'otpCode') {
+            throw new Error(`Invalid type specified: ${type}`);
+        }
         const hashToCompare = type === 'password' ? this.password : this.otpCode;
+        if (!hashToCompare) {
+            throw new Error(`Hash not found for type: ${type}`);
+        }
         return await bcrypt.compare(input, hashToCompare);
     };
-
     return User;
 };
 
