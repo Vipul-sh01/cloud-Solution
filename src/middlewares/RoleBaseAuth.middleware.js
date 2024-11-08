@@ -1,19 +1,19 @@
 import { ApiError } from '../utils/ApiError.js';
 import { db } from '../db/server.db.js';
-import UserModel from '../models/User.js'; 
 
-const User = UserModel(db, db.Sequelize.DataTypes); 
+const { User } = db;
 
 const authorizeRoles = (...roles) => {
     return async (req, res, next) => {
         try {
-            
-            if (!req.session || !req.session.customerId) {
+            if (!req.session || !req.session.userId) {
                 return res.status(401).json(new ApiError(401, "Unauthorized"));
             }
-
-            const customer = await User.findByPk(req.session.customerId); 
-            if (!customer || !roles.includes(customer.role)) {
+            const user = await User.findByPk(req.session.userId);
+            if (!user) {
+                return res.status(404).json(new ApiError(404, "User not found"));
+            }
+            if (!roles.includes(user.role)) {
                 return res.status(403).json(new ApiError(403, "Access denied"));
             }
             next();
