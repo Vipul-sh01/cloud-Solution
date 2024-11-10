@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { otpSend, otpVerify, UserLogOut } from '../controllers/Auth.controllers/User.PhoneAuth.controller.js';
-import { LogIn, LogOut, RegisterUser } from '../controllers/Auth.controllers/User.register.controller.js';
-import { sendEmailVerification, verifyEmail } from '../controllers/Auth.controllers/User.EmailAuth.controller.js';
-import{ PassAuthRegister, PassportLogIn } from '../controllers/Passport/User.PassAuth.controller.js';
+import { otpSend, otpVerify, UserLogOut } from '../Controllers/Auth.controllers/User.PhoneAuth.controller.js';
+import { LogIn, LogOut, RegisterUser } from '../Controllers/Auth.controllers/User.register.controller.js';
+import { sendEmailVerification, verifyEmail } from '../Controllers/Auth.controllers/User.EmailAuth.controller.js';
+import{ PassAuthRegister, PassportLogIn } from '../Controllers/Passport/User.PassAuth.controller.js';
 import { verifySession } from '../middlewares/AuthMiddleware/auth.middlewares.js';
 const router = Router();
 
