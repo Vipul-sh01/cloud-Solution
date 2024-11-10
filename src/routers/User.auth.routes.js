@@ -3,7 +3,7 @@ import { otpSend, otpVerify } from '../Controllers/Auth.controllers/User.PhoneAu
 import { LogIn, LogOut, RegisterUser } from '../Controllers/Auth.controllers/User.register.controller.js';
 import { sendEmailVerification, verifyEmail } from '../Controllers/Auth.controllers/User.EmailAuth.controller.js';
 import{ PassAuthRegister, PassportLogIn } from '../Controllers/Passport/User.PassAuth.controller.js';
-import { verifySession } from '../middlewares/AuthMiddleware/auth.middlewares.js';
+import { verifySession } from '../Middlewares/AuthMiddleware/auth.middlewares.js';
 const router = Router();
 
 router.route('/Register').post(RegisterUser);
