@@ -1,96 +1,88 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ApiError } from "../../utils/ApiError.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
-import { db } from "../../db/server.db.js";
+// import { asyncHandler } from "../../utils/asyncHandler.js";
+// import { ApiError } from "../../utils/ApiError.js";
+// import { ApiResponse } from "../../utils/ApiResponse.js";
+// import { db } from "../../db/server.db.js";
 
-const { User } = db;
-const allowedRoles = ['admin', 'user'];
+// const { User } = db;
+// const allowedRoles = ['admin', 'user'];
 
-const setSessionForUser = async (req, user) => {
-    try {
-        req.session.userid = user.userid;
-        req.session.email = user.email;
-        req.session.role = user.role;
-        await req.session.save();
-        return {
-            userId: req.session.userid,
-            email: req.session.email,
-            message: "Session created successfully"
-        };
-    } catch (error) {
-        console.error("Error during session creation:", error);
-        throw new ApiError(500, "Failed to set session", error.errors);
-    }
-};
 
-const RegisterUser = asyncHandler(async (req, res) => {
-    const { email, password, role } = req.body;
+// const generateAndSendOTP = async (user) => {
+//     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+//     const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); 
 
-    if (!email?.trim() || !password?.trim()) {
-        throw new ApiError(400, "Email and password are required");
-    }
+//     user.otpExpiration = otpExpiration;
+//     await user.save();
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-        throw new ApiError(409, "User already exists.");
-    }
+//     console.log(`OTP Code sent to user: ${otpCode}`);
+//     return otpCode;
+// };
 
-    const userRole = allowedRoles.includes(role) ? role : 'user';
-    const user = await User.create({ email, password, role: userRole });
 
-    if (!user) {
-        throw new ApiError(500, "Error while creating user.");
-    }
+// const requestPasswordReset = asyncHandler(async (req, res) => {
+//     const { email, phoneNumber } = req.body;
 
-    await setSessionForUser(req, user);
-    const createdUser = await User.findOne({
-        where: { email },
-        attributes: { exclude: ['password'] },
-    });
+//     if (!email && !phoneNumber) {
+//         throw new ApiError(400, "Email or phone number is required.");
+//     }
 
-    return res.status(201).json(
-        new ApiResponse(201, createdUser, "User registered successfully.")
-    );
-});
+//     const user = await User.findOne({
+//         where: email ? { email } : { phoneNumber }
+//     });
 
-const LogIn = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+//     if (!user) {
+//         throw new ApiError(404, "User not found.");
+//     }
 
-    if (!email?.trim() || !password?.trim()) {
-        throw new ApiError(400, "Email and password are required.");
-    }
+//     await generateAndSendOTP(user);
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (!existingUser) {
-        throw new ApiError(404, "Email does not exist.");
-    }
+//     return res.status(200).json(new ApiResponse(200, {}, "OTP sent successfully."));
+// });
 
-    const isPasswordValid = await existingUser.compareHash(password, "password");
-    if (!isPasswordValid) {
-        throw new ApiError(401, "Invalid password.");
-    }
 
-    const SetSession = await setSessionForUser(req, existingUser);
+// const verifyOTP = asyncHandler(async (req, res) => {
+//     const { email, phoneNumber, otpCode } = req.body;
+//     const user = await User.findOne({
+//         where: email ? { email } : { phoneNumber }
+//     });
 
-    const user = await User.findOne({
-        where: { email },
-        attributes: { exclude: ['password'] },
-    });
+//     if (!user) {
+//         throw new ApiError(404, "User not found.");
+//     }
 
-    return res.status(200).json(
-        new ApiResponse(200, { user, SetSession }, "User logged in successfully.")
-    );
-});
+//     const isOtpValid = await user.compareHash(otpCode, 'otpCode');
+//     const isOtpExpired = user.otpExpiration && user.otpExpiration < new Date();
 
-const LogOut = asyncHandler(async (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error("Session destruction error:", err);
-            throw new ApiError(500, "Failed to log out.");
-        }
-        res.clearCookie("connect.sid");
-        return res.status(200).json(new ApiResponse(200, {}, "User logged out successfully."));
-    });
-});
+//     if (!isOtpValid || isOtpExpired) {
+//         throw new ApiError(401, "Invalid or expired OTP.");
+//     }
 
-export { RegisterUser, LogIn, LogOut };
+//     user.otpCode = null;
+//     user.otpExpiration = null;
+//     await user.save();
+
+//     return res.status(200).json(new ApiResponse(200, {}, "OTP verified successfully."));
+// });
+
+// const resetPassword = asyncHandler(async (req, res) => {
+//     const { email, phoneNumber, newPassword } = req.body;
+//     const user = await User.findOne({
+//         where: email ? { email } : { phoneNumber }
+//     });
+
+//     if (!user) {
+//         throw new ApiError(404, "User not found.");
+//     }
+
+//     if (!newPassword || typeof newPassword !== 'string' || newPassword.trim() === '') {
+//         throw new ApiError(400, "New password is required.");
+//     }
+
+//     user.password = newPassword; // The hook in the model will handle hashing
+//     await user.save();
+
+//     return res.status(200).json(new ApiResponse(200, {}, "Password reset successfully."));
+// });
+
+
+// export {  LogOut };
