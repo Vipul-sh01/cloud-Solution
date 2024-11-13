@@ -1,9 +1,12 @@
-import passport from '../../db/passport.js'; 
-import { ApiResponse } from '../../utils/ApiResponse.js'; 
-import { asyncHandler } from '../../utils/asyncHandler.js'; 
+import passport from '../../db/passport.js';
+import crypto from 'crypto';
+import { ApiResponse } from '../../utils/ApiResponse.js';
+import { asyncHandler } from '../../utils/asyncHandler.js';
+import { sendResetEmail } from '../../utils/EmailSend.js';
 import { validatePassword, validatePhoneNumber, validateRequiredFields, validateEmail } from "../../utils/validation.js";
 import { ApiError } from '../../utils/ApiError.js';
 import { db } from "../../db/server.db.js";
+import { Op } from 'sequelize';
 
 const { User } = db;
 const allowedRoles = ['admin', 'user'];
@@ -123,4 +126,50 @@ const PassportLogOut = asyncHandler(async (req, res) => {
     });
 });
 
-export { PassportRegister, PassportLogIn, PassportLogOut };
+const ForgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!validateEmail(email)) throw new ApiError(400, "Invalid email format.");
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new ApiError(404, "User with this email does not exist.");
+
+    const resetToken = crypto.randomBytes(3).toString("hex");
+    const tokenExpiration = new Date(Date.now() + 3600000);
+
+    await user.update({ resetToken, tokenExpiration });
+
+    const resetUrl = `${req.protocol}://${req.get('host')}/verifyEmail/${resetToken}`;
+    await sendResetEmail(email, resetUrl);
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password reset email sent successfully."));
+});
+
+const ResetPassword = asyncHandler(async (req, res) => {
+    const { newPassword } = req.body;
+    const { token } = req.params;
+
+    if (!validatePassword(newPassword)) {
+        throw new ApiError(400, "Password must be at least 6 characters long, include uppercase and lowercase letters, a number, and a special character.");
+    }
+
+    const user = await User.findOne({
+        where: {
+            resetToken: token,
+            tokenExpiration: { [Op.gt]: new Date() }
+        }
+    });
+
+    if (!user) throw new ApiError(400, "Invalid or expired reset token.");
+
+    const updatedUser = await user.update({
+        password: newPassword,  
+        resetToken: null,
+        tokenExpiration: null
+    });
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password reset successfully"));
+});
+
+
+export { PassportRegister, PassportLogIn, PassportLogOut, ForgotPassword, ResetPassword };

@@ -18,48 +18,63 @@ const UserModel = (sequelize, DataTypes) => {
             allowNull: true,
         },
         phoneNumber: {
-            type: DataTypes.STRING(10),
+            type: DataTypes.STRING(13),
             allowNull: true,
             unique: true,
         },
         otpCode: {
             type: DataTypes.STRING(6),
             allowNull: true,
+            defaultValue: null,
         },
         otpExpiration: {
             type: DataTypes.DATE,
             allowNull: true,
+            defaultValue: null,
         },
         otpVerified: {
             type: DataTypes.BOOLEAN,
-            allowNull: true,
+            allowNull: false,
             defaultValue: false,
         },
         isEmailVerified: {
             type: DataTypes.BOOLEAN,
-            allowNull: true,
+            allowNull: false,
             defaultValue: false,
+        },
+        resetToken: {  
+            type: DataTypes.STRING(6),
+            allowNull: true,
+            defaultValue: null,
+        },
+        tokenExpiration: { 
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: null,
         },
         isPhoneVerified: {
             type: DataTypes.BOOLEAN,
-            allowNull: true,
+            allowNull: false,
             defaultValue: false,
         },
         emailVerificationToken: {
             type: DataTypes.STRING(6),
             allowNull: true,
+            defaultValue: null,
         },
         googleId: {
             type: DataTypes.STRING(50),
             allowNull: true,
+            defaultValue: null,
         },
         facebookId: {
             type: DataTypes.STRING(50),
             allowNull: true,
+            defaultValue: null,
         },
         role: {
             type: DataTypes.ENUM('admin', 'user'),
-            allowNull: true,
+            allowNull: false,
             defaultValue: 'user',
         },
         lastLogin: {
