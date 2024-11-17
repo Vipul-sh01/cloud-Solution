@@ -8,6 +8,7 @@ const setSessionForUser = async (req, userId) => {
     if (!user) {
         throw new ApiError(404, "User not found");
     }
+    
     req.session.userId = user.userid;
     req.session.email = user.email;
     req.session.role = user.role;
