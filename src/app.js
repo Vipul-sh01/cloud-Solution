@@ -22,6 +22,14 @@ app.use(sessionMiddleware);
 import UserOtpRoutes from './routers/User.auth.routes.js';
 app.use("/api/v1/User", UserOtpRoutes);
 
+// for folder routes
+
+import FolderRoutes from './routers/Folder.routes.js';
+app.use("/api/v1/User", FolderRoutes);
+
+// for file router
+import FileRoutes from './routers/File.routes.js';
+app.use("/api/v1/User", FileRoutes);
 
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Not Found' });

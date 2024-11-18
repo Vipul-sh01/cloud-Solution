@@ -9,7 +9,7 @@ const FileModel = (sequelize, DataTypes) => {
         },
         name: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         filetype: {
             type: DataTypes.STRING(50),
@@ -17,7 +17,7 @@ const FileModel = (sequelize, DataTypes) => {
         },
         size: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
         },
         ownerid: {
             type: DataTypes.UUID,

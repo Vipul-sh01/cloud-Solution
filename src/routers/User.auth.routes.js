@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { otpSend, otpVerify } from '../Controllers/Auth.controllers/User.PhoneAuth.controller.js';
 import { sendEmailVerification, verifyEmail } from '../Controllers/Auth.controllers/User.EmailAuth.controller.js';
 import{ PassportRegister, PassportLogIn, PassportLogOut, ForgotPassword, ResetPassword} from '../Controllers/Passport/User.PassAuth.controller.js';
+// import { verifySession } from '../Middlewares/AuthMiddleware/auth.middlewares.js';
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
 //using Passport
 router.route('/login').post(PassportLogIn);
 router.route('/register').post(PassportRegister);
-router.route('/logout').post(PassportLogOut);
+router.route('/logout').post( PassportLogOut);
 
 
 router.route('/sendOtp').post(otpSend);

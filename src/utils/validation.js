@@ -22,4 +22,9 @@ const validatePhoneNumber = (phoneNumber) => {
     return phonePattern.test(phoneNumber);
 };
 
-export { validateEmail, validateRequiredFields, validatePassword, validatePhoneNumber };
+const validateName = (name) => {
+    const namePattern = /^[a-zA-Z\s]{2,50}$/;
+    return namePattern.test(name);
+};
+
+export { validateEmail, validateRequiredFields, validatePassword, validatePhoneNumber, validateName };

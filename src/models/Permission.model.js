@@ -35,7 +35,7 @@ const PermissionModel = (sequelize, DataTypes) => {
             onDelete: 'CASCADE', 
         },
         accesstype: {
-            type: DataTypes.ENUM('view', 'edit', 'comment', 'owner'),
+            type: DataTypes.ENUM('view', 'edit', 'owner'),
             allowNull: false,
         },
         grantedat: {
@@ -50,6 +50,10 @@ const PermissionModel = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        inherited: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false, 
+        },         
     }, {
         timestamps: true,  
         tableName: 'permissions', 
